@@ -7,7 +7,12 @@ const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_KEY = process.env.ANTHROPIC_API_KEY;
+
+// --- provider config: set OPENROUTER_API_KEY *or* ANTHROPIC_API_KEY in Railway ---
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY;
+const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+// override with MODEL env var if you want a different one
+const MODEL = process.env.MODEL || (OPENROUTER_KEY ? "google/gemini-2.5-flash" : "claude-sonnet-4-6");
 
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -88,10 +93,65 @@ Respond with ONLY a JSON object, no markdown fences, no preamble:
 }`;
 }
 
+// frames: [{time, b64}] — sends to whichever provider is configured
+async function gradeWithModel(frames, prompt) {
+  if (OPENROUTER_KEY) {
+    // OpenRouter: OpenAI-compatible chat format, images as data URLs
+    const content = [];
+    for (const f of frames) {
+      content.push({ type: "text", text: `Frame at ${f.time}s:` });
+      content.push({ type: "image_url", image_url: { url: `data:image/jpeg;base64,${f.b64}` } });
+    }
+    content.push({ type: "text", text: prompt });
+
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "authorization": `Bearer ${OPENROUTER_KEY}`,
+        "x-title": "HookCheck",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 1000,
+        messages: [{ role: "user", content }],
+      }),
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || "OpenRouter API error");
+    return data.choices?.[0]?.message?.content || "";
+  }
+
+  // Anthropic direct
+  const content = [];
+  for (const f of frames) {
+    content.push({ type: "text", text: `Frame at ${f.time}s:` });
+    content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: f.b64 } });
+  }
+  content.push({ type: "text", text: prompt });
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-api-key": ANTHROPIC_KEY,
+      "anthropic-version": "2023-06-01",
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      max_tokens: 1000,
+      messages: [{ role: "user", content }],
+    }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || "Claude API error");
+  return data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
+}
+
 app.post("/api/grade", upload.single("video"), async (req, res) => {
   const tmpFiles = [];
   try {
-    if (!API_KEY) return res.status(500).json({ error: "Server is missing ANTHROPIC_API_KEY." });
+    if (!OPENROUTER_KEY && !ANTHROPIC_KEY) return res.status(500).json({ error: "Server is missing an API key. Set OPENROUTER_API_KEY or ANTHROPIC_API_KEY." });
     if (!req.file) return res.status(400).json({ error: "No video uploaded." });
     const ip = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip;
     if (!underLimit(ip)) return res.status(429).json({ error: `Daily free limit reached (${DAILY_LIMIT} grades). Come back tomorrow.` });
@@ -103,33 +163,14 @@ app.post("/api/grade", upload.single("video"), async (req, res) => {
     if (duration > 600) return res.status(400).json({ error: "Video is over 10 minutes — upload a short-form clip." });
 
     const times = targetTimes(duration);
-    const content = [];
+    const frames = [];
     for (const t of times) {
       const framePath = path.join(os.tmpdir(), `${req.file.filename}-${t}.jpg`);
       tmpFiles.push(framePath);
-      const b64 = await extractFrame(videoPath, t, framePath);
-      content.push({ type: "text", text: `Frame at ${t}s:` });
-      content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } });
+      frames.push({ time: t, b64: await extractFrame(videoPath, t, framePath) });
     }
-    content.push({ type: "text", text: buildPrompt(duration, req.body.niche || "", req.body.caption || "") });
 
-    const apiRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        messages: [{ role: "user", content }],
-      }),
-    });
-    const data = await apiRes.json();
-    if (data.error) throw new Error(data.error.message || "Claude API error");
-
-    const text = data.content.filter((b) => b.type === "text").map((b) => b.text).join("\n");
+    const text = await gradeWithModel(frames, buildPrompt(duration, req.body.niche || "", req.body.caption || ""));
     const clean = text.replace(/```json|```/g, "").trim();
     const parsed = JSON.parse(clean.slice(clean.indexOf("{"), clean.lastIndexOf("}") + 1));
     res.json(parsed);
@@ -141,4 +182,4 @@ app.post("/api/grade", upload.single("video"), async (req, res) => {
   }
 });
 
-app.listen(PORT, () => console.log(`HookCheck running on :${PORT}`));
+app.listen(PORT, () => console.log(`HookCheck running on :${PORT} — model: ${MODEL} via ${OPENROUTER_KEY ? "OpenRouter" : "Anthropic"}`));
