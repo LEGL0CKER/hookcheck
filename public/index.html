@@ -14,18 +14,21 @@
   * { box-sizing: border-box; }
   body {
     margin: 0; color: var(--ink); font-family: 'Archivo', sans-serif;
-    background:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
-      var(--paper);
-    background-size: 28px 28px, 28px 28px, auto;
-    min-height: 100vh;
+    background: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px), var(--paper);
+    background-size: 28px 28px, 28px 28px, auto; min-height: 100vh;
   }
   .margin-line { position: fixed; top: 0; bottom: 0; left: max(16px, calc(50% - 340px)); width: 2px; background: var(--pen); opacity: 0.35; pointer-events: none; }
-  .wrap { max-width: 620px; margin: 0 auto; padding: 40px 24px 80px; }
-  .logo { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 1; }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 32px 24px 80px; }
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .logo { font-family: 'Anton', sans-serif; font-size: 38px; line-height: 1; cursor: pointer; }
   .logo span { color: var(--pen); }
   .tagline { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin: 10px 0 0; letter-spacing: 0.04em; }
+  .authbar { text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+  .authbar .who { color: var(--pencil); margin-bottom: 6px; word-break: break-all; }
+  .pill { display: inline-block; border: 1.5px solid var(--ink); padding: 6px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; cursor: pointer; background: #fff; color: var(--ink); margin-left: 6px; margin-top: 4px; }
+  .pill.red { background: var(--pen); border-color: var(--pen); color: #fff; }
+  .pill.gold { background: var(--highlight); border-color: var(--ink); }
+  .counter { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--pencil); margin-top: 8px; }
   .rule { display: flex; align-items: center; gap: 12px; margin: 36px 0 16px; }
   .rule span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pen); font-weight: 600; white-space: nowrap; }
   .rule::after { content: ""; height: 1px; background: var(--line); flex: 1; }
@@ -40,17 +43,13 @@
   .btn { margin-top: 20px; padding: 16px; width: 100%; background: var(--pen); color: #fff; border: none; font-family: 'Anton', sans-serif; font-size: 18px; letter-spacing: 0.06em; cursor: pointer; }
   .btn:hover { background: var(--pen-dark); }
   .btn.dark { background: var(--ink); width: auto; padding: 14px 28px; font-size: 16px; }
+  .btn.gold { background: var(--highlight); color: var(--ink); }
   .link-btn { background: none; border: none; color: var(--pencil); font-size: 13px; cursor: pointer; text-decoration: underline; display: block; margin: 12px auto 0; }
   .grading { padding: 80px 0; text-align: center; }
   .grading h2 { font-family: 'Anton', sans-serif; font-size: 26px; animation: pulse 1.4s ease-in-out infinite; margin: 0; }
   .grading p { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--pencil); margin-top: 12px; }
   .stamp-wrap { padding: 44px 0 8px; text-align: center; }
-  .stamp {
-    display: inline-block; padding: 18px 34px; border: 5px solid var(--pen); color: var(--pen);
-    transform: rotate(-8deg); font-family: 'Anton', sans-serif; line-height: 1;
-    background: rgba(252,251,248,0.85); box-shadow: 0 0 0 2px rgba(217,43,33,0.15);
-    animation: stampIn 0.45s cubic-bezier(0.2,0.8,0.3,1) both;
-  }
+  .stamp { display: inline-block; padding: 18px 34px; border: 5px solid var(--pen); color: var(--pen); transform: rotate(-8deg); font-family: 'Anton', sans-serif; line-height: 1; background: rgba(252,251,248,0.85); box-shadow: 0 0 0 2px rgba(217,43,33,0.15); animation: stampIn 0.45s cubic-bezier(0.2,0.8,0.3,1) both; }
   .stamp .letter { font-size: 74px; }
   .stamp .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; margin-top: 6px; }
   .overall { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin-top: 22px; }
@@ -64,6 +63,16 @@
   .copyline small { float: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); margin-left: 8px; }
   .risk { font-size: 14.5px; line-height: 1.6; margin: 0 0 8px; background: var(--highlight); display: inline-block; padding: 3px 8px; }
   .err h2 { font-family: 'Anton', sans-serif; font-size: 22px; color: var(--pen); margin-bottom: 10px; }
+  .hist { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .hist .grade { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--pen); width: 40px; text-align: center; flex-shrink: 0; }
+  .hist .meta { flex: 1; min-width: 0; }
+  .hist .meta .date { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); }
+  .hist .meta .fix { font-size: 13px; line-height: 1.4; margin-top: 3px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .hist .scores { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); text-align: right; flex-shrink: 0; }
+  .paywall { border: 2px solid var(--ink); background: #fff; padding: 24px; margin-top: 20px; }
+  .paywall h3 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0 0 8px; }
+  .paywall p { font-size: 14px; line-height: 1.6; margin: 0 0 4px; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; z-index: 50; }
   .hidden { display: none !important; }
   @keyframes stampIn { 0% { transform: rotate(-8deg) scale(2.4); opacity: 0; } 60% { transform: rotate(-8deg) scale(0.94); opacity: 1; } 100% { transform: rotate(-8deg) scale(1); opacity: 1; } }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
@@ -73,10 +82,14 @@
 <body>
 <div class="margin-line"></div>
 <div class="wrap">
-  <header>
-    <div class="logo">HOOK<span>CHECK</span></div>
-    <p class="tagline">Get graded before you post.</p>
-  </header>
+  <div class="topbar">
+    <header>
+      <div class="logo" onclick="goHome()">HOOK<span>CHECK</span></div>
+      <p class="tagline">Get graded before you post.</p>
+    </header>
+    <div class="authbar" id="authbar"></div>
+  </div>
+  <div class="counter" id="counter"></div>
 
   <!-- upload -->
   <section id="stage-upload">
@@ -86,7 +99,7 @@
       <p>or tap to pick a file · any format · under 200MB</p>
       <input type="file" id="file" accept="video/*,.mov,.mp4,.m4v,.webm,.mkv,.3gp,.hevc" hidden>
     </div>
-    <p class="intro">HookCheck grades the first two seconds of your video the way the algorithm does: would a stranger stop scrolling? You get a hook score, pacing notes, caption rewrites, and flop warnings — before you post, while you can still fix it.</p>
+    <p class="intro">HookCheck grades your video before you post it — hook score, audio hook, pacing notes, caption rewrites, and flop warnings, while you can still fix it. The grader is calibrated to be harsh: the average TikTok scores a D. Earn the A.</p>
   </section>
 
   <!-- ready -->
@@ -107,27 +120,108 @@
     <p id="progress">Uploading your video…</p>
   </section>
 
-  <!-- error -->
+  <!-- error / paywall -->
   <section id="stage-error" class="err hidden">
-    <h2>THAT DIDN'T WORK</h2>
+    <h2 id="errtitle">THAT DIDN'T WORK</h2>
     <p id="errmsg" style="font-size:14.5px;line-height:1.6;"></p>
+    <div id="errextra"></div>
     <button class="btn dark" id="restart">START OVER</button>
   </section>
 
   <!-- result -->
   <section id="stage-result" class="hidden"></section>
+
+  <!-- dashboard -->
+  <section id="stage-dashboard" class="hidden">
+    <div class="rule"><span>My report card</span></div>
+    <div id="histlist"><p style="color:var(--pencil);font-size:14px;">Loading…</p></div>
+    <button class="btn dark" onclick="goHome()" style="margin-top:24px;">GRADE A VIDEO</button>
+  </section>
 </div>
+<canvas id="cardcanvas" width="1080" height="1080" class="hidden"></canvas>
 
-<script>
+<script type="module">
+let supabase = null, session = null, cfg = null, me = null, file = null, lastResult = null;
 const $ = (id) => document.getElementById(id);
-const stages = ["upload","ready","grading","error","result"];
-let file = null;
-
+const stages = ["upload","ready","grading","error","result","dashboard"];
 function show(stage) { stages.forEach(s => $("stage-"+s).classList.toggle("hidden", s !== stage)); }
-function fail(msg) { $("errmsg").textContent = msg; show("error"); }
-
+function esc(s) { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
 function letterFor(s) { return s>=90?"A":s>=80?"B":s>=70?"C":s>=55?"D":"F"; }
-function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
+window.goHome = () => { file = null; $("file").value = ""; show("upload"); };
+
+async function token() {
+  if (!supabase) return null;
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token || null;
+}
+async function authedFetch(url, opts = {}) {
+  const t = await token();
+  opts.headers = { ...(opts.headers || {}), ...(t ? { authorization: `Bearer ${t}` } : {}) };
+  return fetch(url, opts);
+}
+
+async function init() {
+  cfg = await (await fetch("/api/config")).json();
+  if (cfg.authOn) {
+    const { createClient } = await import("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm");
+    supabase = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    const { data } = await supabase.auth.getSession();
+    session = data.session;
+    supabase.auth.onAuthStateChange((_e, s) => { session = s; renderAuth(); refreshMe(); });
+  }
+  renderAuth();
+  refreshMe();
+  if (new URLSearchParams(location.search).get("upgraded")) {
+    toast("Premium unlocked. Unlimited grades.");
+    history.replaceState({}, "", "/");
+  }
+}
+
+function renderAuth() {
+  const bar = $("authbar");
+  if (!cfg?.authOn) { bar.innerHTML = ""; return; }
+  if (!session) {
+    bar.innerHTML = `<button class="pill red" id="signin">SIGN IN WITH GOOGLE</button>`;
+    $("signin").onclick = () => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin } });
+  } else {
+    bar.innerHTML = `<div class="who">${esc(session.user.email)}</div>
+      <button class="pill" id="dash">MY GRADES</button>
+      <button class="pill" id="signout">SIGN OUT</button>
+      <span id="planslot"></span>`;
+    $("dash").onclick = openDashboard;
+    $("signout").onclick = async () => { await supabase.auth.signOut(); location.reload(); };
+  }
+}
+
+async function refreshMe() {
+  $("counter").textContent = "";
+  if (!cfg?.authOn || !session) return;
+  try {
+    const r = await authedFetch("/api/me");
+    if (!r.ok) return;
+    me = await r.json();
+    const slot = $("planslot");
+    if (me.premium) {
+      $("counter").textContent = "PREMIUM · unlimited grades";
+      if (slot) { slot.innerHTML = `<button class="pill" id="manage">MANAGE PLAN</button>`; $("manage").onclick = openPortal; }
+    } else {
+      $("counter").textContent = `Free plan · ${Math.max(0, me.limit - me.used)} of ${me.limit} grades left this month`;
+      if (cfg.paymentsOn && slot) { slot.innerHTML = `<button class="pill gold" id="upgrade">GO PREMIUM</button>`; $("upgrade").onclick = startCheckout; }
+    }
+  } catch {}
+}
+
+async function startCheckout() {
+  const r = await authedFetch("/api/checkout", { method: "POST" });
+  const d = await r.json();
+  if (d.url) location.href = d.url; else toast(d.error || "Checkout failed.");
+}
+async function openPortal() {
+  const r = await authedFetch("/api/portal", { method: "POST" });
+  const d = await r.json();
+  if (d.url) location.href = d.url; else toast(d.error || "Couldn't open billing.");
+}
 
 // --- file picking ---
 const drop = $("drop"), input = $("file");
@@ -136,7 +230,6 @@ drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); accept(e.dataTransfer.files[0]); };
 input.onchange = () => accept(input.files[0]);
-
 function accept(f) {
   if (!f) return;
   if (f.size > 200*1024*1024) return fail("Video is over 200MB. Export a smaller version and try again.");
@@ -144,12 +237,23 @@ function accept(f) {
   $("preview").src = URL.createObjectURL(f);
   show("ready");
 }
+$("repick").onclick = window.goHome;
+$("restart").onclick = window.goHome;
 
-$("repick").onclick = () => { file = null; input.value = ""; show("upload"); };
-$("restart").onclick = () => { file = null; input.value = ""; show("upload"); };
+function fail(msg, upgrade = false) {
+  $("errtitle").textContent = upgrade ? "OUT OF FREE GRADES" : "THAT DIDN'T WORK";
+  $("errmsg").textContent = msg;
+  $("errextra").innerHTML = "";
+  if (upgrade && cfg?.paymentsOn) {
+    $("errextra").innerHTML = `<div class="paywall"><h3>GO PREMIUM</h3><p>Unlimited grades. Audio hook analysis. Full grade history.</p><button class="btn gold" id="pwbtn">UPGRADE NOW</button></div>`;
+    $("pwbtn").onclick = startCheckout;
+  }
+  show("error");
+}
 
 // --- grading ---
 $("grade").onclick = async () => {
+  if (cfg?.authOn && !session) { toast("Sign in with Google first — it's the button at the top."); return; }
   show("grading");
   $("progress").textContent = "Uploading your video…";
   try {
@@ -157,46 +261,133 @@ $("grade").onclick = async () => {
     form.append("video", file);
     form.append("niche", $("niche").value);
     form.append("caption", $("caption").value);
-    const timer = setTimeout(() => $("progress").textContent = "Pulling frames and grading the hook…", 4000);
-    const res = await fetch("/api/grade", { method: "POST", body: form });
+    const timer = setTimeout(() => $("progress").textContent = "Pulling frames + audio and grading the hook…", 4000);
+    const res = await authedFetch("/api/grade", { method: "POST", body: form });
     clearTimeout(timer);
     const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || "Analysis failed.");
+    if (!res.ok || data.error) return fail(data.error || "Analysis failed.", !!data.upgrade);
+    lastResult = data;
     render(data);
+    refreshMe();
   } catch (e) {
     fail(e.message || "Something broke during analysis. Try again.");
   }
 };
 
 function copyLine(text) {
-  return `<button class="copyline" onclick="navigator.clipboard.writeText(this.dataset.t);this.classList.add('copied');this.querySelector('small').textContent='COPIED';setTimeout(()=>{this.classList.remove('copied');this.querySelector('small').textContent='COPY'},1400)" data-t="${esc(text)}">${esc(text)}<small>COPY</small></button>`;
+  return `<button class="copyline" data-t="${esc(text)}">${esc(text)}<small>COPY</small></button>`;
+}
+function wireCopy(root) {
+  root.querySelectorAll(".copyline").forEach(b => b.onclick = () => {
+    navigator.clipboard.writeText(b.dataset.t);
+    b.classList.add("copied"); b.querySelector("small").textContent = "COPIED";
+    setTimeout(() => { b.classList.remove("copied"); b.querySelector("small").textContent = "COPY"; }, 1400);
+  });
 }
 
 function render(r) {
-  const tags = r.hashtags.map(h => h.startsWith("#") ? h : "#"+h).join(" ");
+  const tags = (r.hashtags || []).map(h => h.startsWith("#") ? h : "#"+h).join(" ");
+  const items = [
+    ["Hook (first 2 seconds)", r.hook],
+    ...(r.audioHook ? [["Audio hook", r.audioHook]] : []),
+    ["Pacing", r.pacing],
+    ["Visuals", r.visual],
+  ];
   $("stage-result").innerHTML = `
     <div class="stamp-wrap">
       <div class="stamp"><div class="letter">${esc(letterFor(r.hookScore))}</div><div class="sub">HOOK · ${r.hookScore}/100</div></div>
-      <div class="overall">Overall: ${r.overallScore}/100</div>
+      <div class="overall">Overall: ${r.overallScore}/100${r.audioAnalyzed ? " · audio analyzed" : ""}</div>
     </div>
+    <div style="text-align:center;"><button class="btn dark" id="sharecard" style="padding:12px 22px;font-size:14px;">SHARE MY GRADE 📸</button></div>
     <div class="rule"><span>The markup</span></div>
-    ${["hook","pacing","visual"].map(k => `
-      <div class="item">
-        <h3>${k === "hook" ? "Hook (first 2 seconds)" : k[0].toUpperCase()+k.slice(1)}</h3>
-        <p class="verdict">${esc(r[k].verdict)}</p>
-        <p class="fix"><b>FIX →</b>${esc(r[k].fix)}</p>
+    ${items.map(([title, o]) => `
+      <div class="item"><h3>${esc(title)}</h3>
+        <p class="verdict">${esc(o?.verdict)}</p>
+        <p class="fix"><b>FIX →</b>${esc(o?.fix)}</p>
       </div>`).join("")}
     <div class="rule"><span>Captions — tap to copy</span></div>
-    ${r.captions.map(copyLine).join("")}
+    ${(r.captions || []).map(copyLine).join("")}
     <div class="rule"><span>Hashtags</span></div>
     ${copyLine(tags)}
     <div class="rule"><span>When to post</span></div>
     <p style="font-size:14.5px;line-height:1.6;margin:0;">${esc(r.postTime)}</p>
     <div class="rule"><span>Flop risks</span></div>
-    ${r.flopRisks.map(x => `<p class="risk">${esc(x)}</p>`).join("")}
-    <div style="margin-top:40px;"><button class="btn dark" onclick="location.reload()">GRADE ANOTHER VIDEO</button></div>`;
+    ${(r.flopRisks || []).map(x => `<p class="risk">${esc(x)}</p>`).join("")}
+    <div style="margin-top:40px;"><button class="btn dark" onclick="goHome()">GRADE ANOTHER VIDEO</button></div>`;
+  wireCopy($("stage-result"));
+  $("sharecard").onclick = () => makeShareCard(r);
   show("result");
 }
+
+// --- share card: 1080x1080 grade stamp image ---
+async function makeShareCard(r) {
+  await document.fonts.ready;
+  const c = $("cardcanvas"), x = c.getContext("2d");
+  // paper + grid
+  x.fillStyle = "#FCFBF8"; x.fillRect(0, 0, 1080, 1080);
+  x.strokeStyle = "rgba(22,21,19,0.05)"; x.lineWidth = 2;
+  for (let i = 0; i <= 1080; i += 54) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 1080); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(1080, i); x.stroke(); }
+  // red margin
+  x.strokeStyle = "rgba(217,43,33,0.35)"; x.lineWidth = 4;
+  x.beginPath(); x.moveTo(90, 0); x.lineTo(90, 1080); x.stroke();
+  // logo
+  x.fillStyle = "#161513"; x.font = "72px Anton"; x.fillText("HOOK", 140, 150);
+  x.fillStyle = "#D92B21"; x.fillText("CHECK", 140 + x.measureText("HOOK").width, 150);
+  x.fillStyle = "#8A8578"; x.font = "26px 'IBM Plex Mono'"; x.fillText("Get graded before you post.", 142, 200);
+  // stamp
+  x.save(); x.translate(540, 520); x.rotate(-8 * Math.PI / 180);
+  x.strokeStyle = "#D92B21"; x.lineWidth = 14; x.strokeRect(-260, -190, 520, 380);
+  x.fillStyle = "#D92B21"; x.font = "260px Anton"; x.textAlign = "center";
+  x.fillText(letterFor(r.hookScore), 0, 80);
+  x.font = "30px 'IBM Plex Mono'"; x.fillText(`HOOK · ${r.hookScore}/100`, 0, 150);
+  x.restore(); x.textAlign = "left";
+  // scores + top fix
+  x.fillStyle = "#8A8578"; x.font = "28px 'IBM Plex Mono'";
+  x.fillText(`OVERALL: ${r.overallScore}/100`, 142, 810);
+  x.fillStyle = "#161513"; x.font = "600 30px Archivo";
+  wrapText(x, `FIX → ${r.hook?.fix || ""}`, 142, 860, 800, 40, 3);
+  x.fillStyle = "#D92B21"; x.font = "26px 'IBM Plex Mono'";
+  x.fillText(location.host, 142, 1020);
+  // export
+  c.toBlob(async (blob) => {
+    const f = new File([blob], "hookcheck-grade.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [f] })) {
+      try { await navigator.share({ files: [f], title: "My HookCheck grade" }); return; } catch {}
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "hookcheck-grade.png"; a.click();
+  });
+}
+function wrapText(x, text, px, py, maxW, lh, maxLines) {
+  const words = text.split(" "); let line = "", lines = 0;
+  for (const w of words) {
+    const test = line + w + " ";
+    if (x.measureText(test).width > maxW && line) {
+      x.fillText(line.trim(), px, py); py += lh; line = w + " "; lines++;
+      if (lines >= maxLines - 1) { x.fillText(line.trim() + "…", px, py); return; }
+    } else line = test;
+  }
+  x.fillText(line.trim(), px, py);
+}
+
+// --- dashboard ---
+async function openDashboard() {
+  show("dashboard");
+  const r = await authedFetch("/api/history");
+  if (!r.ok) { $("histlist").innerHTML = `<p style="color:var(--pencil);font-size:14px;">Sign in to see your grades.</p>`; return; }
+  const rows = await r.json();
+  if (!rows.length) { $("histlist").innerHTML = `<p style="color:var(--pencil);font-size:14px;">No grades yet. Your report card starts with your first video.</p>`; return; }
+  $("histlist").innerHTML = rows.map(row => `
+    <div class="hist">
+      <div class="grade">${letterFor(row.hook_score)}</div>
+      <div class="meta">
+        <div class="date">${new Date(row.created_at).toLocaleDateString()} · hook ${row.hook_score} · overall ${row.overall_score}</div>
+        <div class="fix">${esc(row.result?.hook?.fix || "")}</div>
+      </div>
+    </div>`).join("");
+}
+
+init();
 </script>
 </body>
 </html>
