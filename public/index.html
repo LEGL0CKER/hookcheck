@@ -4,151 +4,272 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>HookCheck — Get graded before you post</title>
+<meta name="description" content="Upload your TikTok before you post it. Get a brutal hook score, audio analysis, caption rewrites, and flop warnings — while you can still fix it.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper: #FCFBF8; --ink: #161513; --pen: #D92B21; --pen-dark: #B01F17;
     --pencil: #8A8578; --highlight: #FFE84A; --line: #E4E0D6; --grid: rgba(22,21,19,0.045);
+    --shadow: 6px 6px 0 var(--ink);
   }
   * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0; color: var(--ink); font-family: 'Archivo', sans-serif;
     background: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px), var(--paper);
     background-size: 28px 28px, 28px 28px, auto; min-height: 100vh;
   }
-  .margin-line { position: fixed; top: 0; bottom: 0; left: max(16px, calc(50% - 340px)); width: 2px; background: var(--pen); opacity: 0.35; pointer-events: none; }
-  .wrap { max-width: 620px; margin: 0 auto; padding: 32px 24px 80px; }
-  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
-  .logo { font-family: 'Anton', sans-serif; font-size: 38px; line-height: 1; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--highlight); outline-offset: 2px; }
+  .margin-line { position: fixed; top: 0; bottom: 0; left: max(14px, calc(50% - 350px)); width: 2px; background: var(--pen); opacity: 0.3; pointer-events: none; z-index: 1; }
+
+  /* ---------- header ---------- */
+  .topnav { position: sticky; top: 0; z-index: 40; background: rgba(252,251,248,0.92); backdrop-filter: blur(6px); border-bottom: 1.5px solid var(--ink); }
+  .topnav-inner { max-width: 640px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .logo { font-family: 'Anton', sans-serif; font-size: 24px; line-height: 1; cursor: pointer; letter-spacing: 0.01em; user-select: none; }
   .logo span { color: var(--pen); }
-  .tagline { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin: 10px 0 0; letter-spacing: 0.04em; }
-  .authbar { text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
-  .authbar .who { color: var(--pencil); margin-bottom: 6px; word-break: break-all; }
-  .pill { display: inline-block; border: 1.5px solid var(--ink); padding: 6px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; cursor: pointer; background: #fff; color: var(--ink); margin-left: 6px; margin-top: 4px; }
-  .pill.red { background: var(--pen); border-color: var(--pen); color: #fff; }
-  .pill.gold { background: var(--highlight); border-color: var(--ink); }
-  .counter { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--pencil); margin-top: 8px; }
-  .rule { display: flex; align-items: center; gap: 12px; margin: 36px 0 16px; }
-  .rule span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pen); font-weight: 600; white-space: nowrap; }
-  .rule::after { content: ""; height: 1px; background: var(--line); flex: 1; }
-  .drop { border: 2px dashed var(--pencil); background: rgba(255,255,255,0.5); padding: 56px 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
-  .drop.over { border-color: var(--pen); background: rgba(217,43,33,0.04); }
-  .drop h2 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0 0 8px; }
-  .drop p { font-size: 13.5px; color: var(--pencil); margin: 0; }
-  .intro { font-size: 13px; color: var(--pencil); line-height: 1.6; margin-top: 20px; }
-  video { width: 100%; max-height: 380px; background: #000; display: block; margin-top: 24px; }
-  label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pencil); display: block; margin: 16px 0 6px; }
-  input[type=text] { width: 100%; padding: 12px 14px; border: 1px solid var(--line); background: #fff; font-size: 15px; font-family: 'Archivo', sans-serif; outline: none; }
-  .btn { margin-top: 20px; padding: 16px; width: 100%; background: var(--pen); color: #fff; border: none; font-family: 'Anton', sans-serif; font-size: 18px; letter-spacing: 0.06em; cursor: pointer; }
-  .btn:hover { background: var(--pen-dark); }
-  .btn.dark { background: var(--ink); width: auto; padding: 14px 28px; font-size: 16px; }
+  .authbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .pill { border: 1.5px solid var(--ink); padding: 7px 12px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; cursor: pointer; background: #fff; color: var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: transform .12s, box-shadow .12s; }
+  .pill:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--ink); }
+  .pill:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--ink); }
+  .pill.red { background: var(--pen); border-color: var(--ink); color: #fff; }
+  .pill.gold { background: var(--highlight); }
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 24px 90px; position: relative; z-index: 2; }
+  .counter { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--pencil); padding: 12px 2px 0; }
+
+  /* ---------- hero ---------- */
+  .hero { padding: 56px 0 8px; }
+  .hero h1 { font-family: 'Anton', sans-serif; font-size: clamp(42px, 9.5vw, 72px); line-height: 0.98; margin: 0; text-transform: uppercase; letter-spacing: 0.005em; }
+  .hero h1 .circled { position: relative; color: var(--pen); white-space: nowrap; }
+  .hero h1 .circled svg { position: absolute; inset: -18% -14%; width: 128%; height: 136%; overflow: visible; }
+  .hero h1 .circled path { fill: none; stroke: var(--pen); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 600; stroke-dashoffset: 600; animation: drawcircle 0.9s 0.5s ease-out forwards; }
+  .hero p.sub { font-size: 17px; line-height: 1.6; color: var(--ink); max-width: 480px; margin: 22px 0 0; }
+  .hero p.sub mark { background: linear-gradient(transparent 55%, var(--highlight) 55%); padding: 0 2px; }
+  .hero .cta-row { display: flex; align-items: center; gap: 16px; margin-top: 28px; flex-wrap: wrap; }
+  .hero .fineprint { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--pencil); letter-spacing: 0.04em; }
+
+  /* ---------- cards & buttons ---------- */
+  .card { background: #fff; border: 1.5px solid var(--ink); box-shadow: var(--shadow); padding: 24px; }
+  .btn { padding: 16px 26px; background: var(--pen); color: #fff; border: 1.5px solid var(--ink); font-family: 'Anton', sans-serif; font-size: 17px; letter-spacing: 0.06em; cursor: pointer; box-shadow: var(--shadow); transition: transform .12s, box-shadow .12s; }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 7px 7px 0 var(--ink); }
+  .btn:active { transform: translate(3px,3px); box-shadow: 2px 2px 0 var(--ink); }
+  .btn.dark { background: var(--ink); }
   .btn.gold { background: var(--highlight); color: var(--ink); }
-  .link-btn { background: none; border: none; color: var(--pencil); font-size: 13px; cursor: pointer; text-decoration: underline; display: block; margin: 12px auto 0; }
-  .grading { padding: 80px 0; text-align: center; }
-  .grading h2 { font-family: 'Anton', sans-serif; font-size: 26px; animation: pulse 1.4s ease-in-out infinite; margin: 0; }
-  .grading p { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--pencil); margin-top: 12px; }
-  .stamp-wrap { padding: 44px 0 8px; text-align: center; }
-  .stamp { display: inline-block; padding: 18px 34px; border: 5px solid var(--pen); color: var(--pen); transform: rotate(-8deg); font-family: 'Anton', sans-serif; line-height: 1; background: rgba(252,251,248,0.85); box-shadow: 0 0 0 2px rgba(217,43,33,0.15); animation: stampIn 0.45s cubic-bezier(0.2,0.8,0.3,1) both; }
-  .stamp .letter { font-size: 74px; }
-  .stamp .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; margin-top: 6px; }
-  .overall { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin-top: 22px; }
-  .item { padding: 14px 0; border-bottom: 1px solid var(--line); }
-  .item h3 { font-weight: 700; font-size: 15px; margin: 0 0 6px; }
-  .item .verdict { margin: 0 0 8px; font-size: 14.5px; line-height: 1.55; }
-  .item .fix { margin: 0; font-size: 14px; line-height: 1.5; color: var(--pen); font-weight: 500; }
+  .btn.full { width: 100%; margin-top: 20px; }
+  .link-btn { background: none; border: none; color: var(--pencil); font-size: 13px; cursor: pointer; text-decoration: underline; display: block; margin: 14px auto 0; }
+
+  .rule { display: flex; align-items: center; gap: 12px; margin: 44px 0 18px; }
+  .rule span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pen); font-weight: 600; white-space: nowrap; }
+  .rule::after { content: ""; height: 1.5px; background: var(--ink); opacity: 0.85; flex: 1; }
+
+  /* ---------- upload ---------- */
+  .drop { border: 2.5px dashed var(--ink); background: #fff; padding: 52px 24px; text-align: center; cursor: pointer; transition: all 0.15s; box-shadow: var(--shadow); }
+  .drop:hover { transform: translate(-1px,-1px); box-shadow: 7px 7px 0 var(--ink); }
+  .drop.over { border-color: var(--pen); background: rgba(217,43,33,0.05); border-style: solid; }
+  .drop h2 { font-family: 'Anton', sans-serif; font-size: 22px; margin: 0 0 8px; letter-spacing: 0.03em; }
+  .drop p { font-size: 13.5px; color: var(--pencil); margin: 0; }
+
+  /* ---------- how it works ---------- */
+  .steps { display: grid; gap: 14px; }
+  .step { display: flex; gap: 16px; align-items: baseline; padding: 16px 18px; background: #fff; border: 1.5px solid var(--ink); }
+  .step .n { font-family: 'Anton', sans-serif; font-size: 30px; color: var(--pen); flex-shrink: 0; width: 34px; }
+  .step h3 { font-size: 15px; font-weight: 700; margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .step p { font-size: 14px; line-height: 1.55; margin: 0; color: #3d3b37; }
+
+  /* ---------- pricing ---------- */
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 560px) { .plans { grid-template-columns: 1fr; } }
+  .plan { background: #fff; border: 1.5px solid var(--ink); padding: 24px 22px; position: relative; }
+  .plan.hot { box-shadow: var(--shadow); }
+  .plan .flag { position: absolute; top: -13px; right: 14px; background: var(--highlight); border: 1.5px solid var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em; padding: 4px 9px; transform: rotate(2deg); }
+  .plan h3 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0; letter-spacing: 0.04em; }
+  .plan .price { font-family: 'Anton', sans-serif; font-size: 40px; margin: 10px 0 2px; }
+  .plan .price small { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); }
+  .plan ul { list-style: none; padding: 0; margin: 16px 0 0; }
+  .plan li { font-size: 14px; line-height: 1.5; padding: 7px 0 7px 24px; border-bottom: 1px dashed var(--line); position: relative; }
+  .plan li::before { content: "✓"; position: absolute; left: 2px; color: var(--pen); font-weight: 700; }
+  .plan .btn { width: 100%; margin-top: 18px; font-size: 15px; padding: 13px; }
+
+  /* ---------- form ---------- */
+  label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pencil); display: block; margin: 18px 0 6px; }
+  input[type=text] { width: 100%; padding: 13px 14px; border: 1.5px solid var(--ink); background: #fff; font-size: 15px; font-family: 'Archivo', sans-serif; outline: none; }
+  input[type=text]:focus { box-shadow: 3px 3px 0 var(--highlight); }
+  video { width: 100%; max-height: 400px; background: #000; display: block; margin-top: 26px; border: 1.5px solid var(--ink); box-shadow: var(--shadow); }
+
+  /* ---------- grading ---------- */
+  .grading { padding: 90px 0; text-align: center; }
+  .grading .penloop { font-family: 'Anton', sans-serif; font-size: 30px; animation: pulse 1.4s ease-in-out infinite; margin: 0; letter-spacing: 0.05em; }
+  .grading p { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--pencil); margin-top: 14px; min-height: 20px; }
+
+  /* ---------- results ---------- */
+  .stamp-wrap { padding: 48px 0 10px; text-align: center; }
+  .stamp { display: inline-block; padding: 20px 38px; border: 6px solid var(--pen); color: var(--pen); transform: rotate(-8deg); font-family: 'Anton', sans-serif; line-height: 1; background: rgba(252,251,248,0.9); box-shadow: 0 0 0 2px rgba(217,43,33,0.15); animation: stampIn 0.45s cubic-bezier(0.2,0.8,0.3,1) both; }
+  .stamp .letter { font-size: 80px; }
+  .stamp .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; margin-top: 8px; }
+  .overall { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin-top: 24px; }
+  .item { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .item h3 { font-weight: 700; font-size: 15px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .item .verdict { margin: 0 0 8px; font-size: 14.5px; line-height: 1.6; }
+  .item .fix { margin: 0; font-size: 14px; line-height: 1.55; color: var(--pen); font-weight: 500; }
   .item .fix b { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; margin-right: 6px; font-weight: 600; }
-  .copyline { display: block; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px dashed var(--line); padding: 10px 6px; font-size: 14.5px; font-family: 'Archivo', sans-serif; color: var(--ink); cursor: pointer; line-height: 1.5; transition: background 0.2s; }
+  .copyline { display: block; width: 100%; text-align: left; background: #fff; border: 1.5px solid var(--ink); padding: 12px 14px; margin-bottom: 10px; font-size: 14.5px; font-family: 'Archivo', sans-serif; color: var(--ink); cursor: pointer; line-height: 1.5; transition: all 0.15s; }
+  .copyline:hover { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px,-1px); }
   .copyline.copied { background: var(--highlight); }
   .copyline small { float: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); margin-left: 8px; }
-  .risk { font-size: 14.5px; line-height: 1.6; margin: 0 0 8px; background: var(--highlight); display: inline-block; padding: 3px 8px; }
-  .err h2 { font-family: 'Anton', sans-serif; font-size: 22px; color: var(--pen); margin-bottom: 10px; }
-  .hist { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-  .hist .grade { font-family: 'Anton', sans-serif; font-size: 28px; color: var(--pen); width: 40px; text-align: center; flex-shrink: 0; }
+  .risk { font-size: 14.5px; line-height: 1.6; margin: 0 0 10px; background: var(--highlight); display: inline-block; padding: 4px 10px; border: 1.5px solid var(--ink); }
+  .err h2 { font-family: 'Anton', sans-serif; font-size: 24px; color: var(--pen); margin-bottom: 10px; }
+  .paywall { margin-top: 22px; }
+  .paywall h3 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0 0 8px; }
+  .paywall p { font-size: 14px; line-height: 1.6; margin: 0 0 4px; }
+
+  /* ---------- dashboard ---------- */
+  .hist { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--ink); background: #fff; margin-bottom: 10px; }
+  .hist .grade { font-family: 'Anton', sans-serif; font-size: 30px; color: var(--pen); width: 42px; text-align: center; flex-shrink: 0; }
   .hist .meta { flex: 1; min-width: 0; }
   .hist .meta .date { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); }
   .hist .meta .fix { font-size: 13px; line-height: 1.4; margin-top: 3px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .hist .scores { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); text-align: right; flex-shrink: 0; }
-  .paywall { border: 2px solid var(--ink); background: #fff; padding: 24px; margin-top: 20px; }
-  .paywall h3 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0 0 8px; }
-  .paywall p { font-size: 14px; line-height: 1.6; margin: 0 0 4px; }
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; z-index: 50; }
+
+  footer { margin-top: 70px; padding-top: 18px; border-top: 1.5px solid var(--ink); font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--pencil); display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; z-index: 50; border: 1.5px solid #fff; }
   .hidden { display: none !important; }
+  .who { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
   @keyframes stampIn { 0% { transform: rotate(-8deg) scale(2.4); opacity: 0; } 60% { transform: rotate(-8deg) scale(0.94); opacity: 1; } 100% { transform: rotate(-8deg) scale(1); opacity: 1; } }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-  @media (prefers-reduced-motion: reduce) { .stamp, .grading h2 { animation: none !important; } }
+  @keyframes drawcircle { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } html { scroll-behavior: auto; } }
 </style>
 </head>
 <body>
 <div class="margin-line"></div>
-<div class="wrap">
-  <div class="topbar">
-    <header>
-      <div class="logo" onclick="goHome()">HOOK<span>CHECK</span></div>
-      <p class="tagline">Get graded before you post.</p>
-    </header>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="logo" onclick="goHome()">HOOK<span>CHECK</span></div>
     <div class="authbar" id="authbar"></div>
   </div>
+</nav>
+
+<div class="wrap">
   <div class="counter" id="counter"></div>
 
-  <!-- upload -->
+  <!-- ============ HOME / MARKETING ============ -->
+  <div id="marketing">
+    <section class="hero">
+      <h1>The average TikTok scores a <span class="circled">D<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 8 C 88 4, 102 30, 96 55 C 90 84, 55 98, 28 90 C 4 82, -2 52, 10 30 C 20 12, 40 6, 58 9"/></svg></span></h1>
+      <p class="sub">HookCheck grades your video <mark>before you post it</mark> — the hook, the audio, the pacing — and tells you exactly what to fix while you still can. No sugarcoating. The red pen doesn't care about your feelings.</p>
+      <div class="cta-row">
+        <button class="btn" onclick="document.getElementById('drop').scrollIntoView({block:'center'}); ">GRADE MY VIDEO</button>
+        <span class="fineprint" id="heroFineprint">3 free grades a month · any format · no watermark</span>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ UPLOAD ============ -->
   <section id="stage-upload">
-    <div class="rule"><span>Step 1 · Submit your video</span></div>
-    <div class="drop" id="drop">
+    <div class="rule"><span>Submit your video</span></div>
+    <div class="drop" id="drop" role="button" tabindex="0" aria-label="Upload a video">
       <h2>DROP YOUR VIDEO HERE</h2>
-      <p>or tap to pick a file · any format · under 200MB</p>
+      <p>or tap to pick a file · MP4, MOV, HEVC, anything · under 200MB</p>
       <input type="file" id="file" accept="video/*,.mov,.mp4,.m4v,.webm,.mkv,.3gp,.hevc" hidden>
     </div>
-    <p class="intro">HookCheck grades your video before you post it — hook score, audio hook, pacing notes, caption rewrites, and flop warnings, while you can still fix it. The grader is calibrated to be harsh: the average TikTok scores a D. Earn the A.</p>
   </section>
 
-  <!-- ready -->
+  <div id="marketing2">
+    <div class="rule"><span>How the grading works</span></div>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><div><h3>Submit</h3><p>Upload the video you're about to post. We pull the key frames and the first 12 seconds of audio.</p></div></div>
+      <div class="step"><div class="n">02</div><div><h3>Get marked up</h3><p>The grader is calibrated against all of TikTok, not your last post. Static openers cap at a D. Every note references what's actually in your video.</p></div></div>
+      <div class="step"><div class="n">03</div><div><h3>Fix & post</h3><p>Every fix takes under 30 minutes with a phone. Re-grade, earn the A, then post knowing it won't flop.</p></div></div>
+    </div>
+
+    <div class="rule"><span>Pricing</span></div>
+    <div class="plans">
+      <div class="plan">
+        <h3>FREE</h3>
+        <div class="price">$0<small></small></div>
+        <ul>
+          <li>3 grades per month</li>
+          <li>Hook + pacing + visual markup</li>
+          <li>Caption rewrites & hashtags</li>
+          <li>Shareable grade card</li>
+        </ul>
+      </div>
+      <div class="plan hot">
+        <div class="flag">FOR CREATORS</div>
+        <h3>PREMIUM</h3>
+        <div class="price">$9<small>/month</small></div>
+        <ul>
+          <li>Unlimited grades</li>
+          <li>Audio hook analysis</li>
+          <li>Full grade history</li>
+          <li>Re-grade until you earn the A</li>
+        </ul>
+        <button class="btn gold" id="planUpgrade">GO PREMIUM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ READY ============ -->
   <section id="stage-ready" class="hidden">
     <video id="preview" controls playsinline muted></video>
-    <div class="rule"><span>Step 2 · Details (optional but helps)</span></div>
-    <label for="niche">Your niche</label>
-    <input type="text" id="niche" placeholder="e.g. emoto riding, gaming, cooking">
-    <label for="caption">Planned caption</label>
-    <input type="text" id="caption" placeholder="What were you going to caption it?">
-    <button class="btn" id="grade">GRADE MY VIDEO</button>
+    <div class="rule"><span>Details (optional but helps)</span></div>
+    <div class="card">
+      <label for="niche" style="margin-top:0;">Your niche</label>
+      <input type="text" id="niche" placeholder="e.g. emoto riding, gaming, cooking">
+      <label for="caption">Planned caption</label>
+      <input type="text" id="caption" placeholder="What were you going to caption it?">
+      <button class="btn full" id="grade">GRADE MY VIDEO</button>
+    </div>
     <button class="link-btn" id="repick">Pick a different video</button>
   </section>
 
-  <!-- grading -->
+  <!-- ============ GRADING ============ -->
   <section id="stage-grading" class="grading hidden">
-    <h2>GRADING…</h2>
+    <div class="penloop">GRADING…</div>
     <p id="progress">Uploading your video…</p>
   </section>
 
-  <!-- error / paywall -->
+  <!-- ============ ERROR / PAYWALL ============ -->
   <section id="stage-error" class="err hidden">
     <h2 id="errtitle">THAT DIDN'T WORK</h2>
     <p id="errmsg" style="font-size:14.5px;line-height:1.6;"></p>
     <div id="errextra"></div>
-    <button class="btn dark" id="restart">START OVER</button>
+    <button class="btn dark" id="restart" style="margin-top:18px;">START OVER</button>
   </section>
 
-  <!-- result -->
+  <!-- ============ RESULT ============ -->
   <section id="stage-result" class="hidden"></section>
 
-  <!-- dashboard -->
+  <!-- ============ DASHBOARD ============ -->
   <section id="stage-dashboard" class="hidden">
     <div class="rule"><span>My report card</span></div>
     <div id="histlist"><p style="color:var(--pencil);font-size:14px;">Loading…</p></div>
     <button class="btn dark" onclick="goHome()" style="margin-top:24px;">GRADE A VIDEO</button>
   </section>
+
+  <footer>
+    <span>HOOKCHECK © 2026</span>
+    <span>Get graded before you post.</span>
+  </footer>
 </div>
 <canvas id="cardcanvas" width="1080" height="1080" class="hidden"></canvas>
 
 <script type="module">
-let supabase = null, session = null, cfg = null, me = null, file = null, lastResult = null;
+let supabase = null, session = null, cfg = null, me = null, file = null;
 const $ = (id) => document.getElementById(id);
 const stages = ["upload","ready","grading","error","result","dashboard"];
-function show(stage) { stages.forEach(s => $("stage-"+s).classList.toggle("hidden", s !== stage)); }
+function show(stage) {
+  stages.forEach(s => $("stage-"+s).classList.toggle("hidden", s !== stage));
+  const home = stage === "upload";
+  $("marketing").classList.toggle("hidden", !home);
+  $("marketing2").classList.toggle("hidden", !home);
+}
 function esc(s) { const d = document.createElement("div"); d.textContent = s ?? ""; return d.innerHTML; }
 function letterFor(s) { return s>=90?"A":s>=80?"B":s>=70?"C":s>=55?"D":"F"; }
-function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
-window.goHome = () => { file = null; $("file").value = ""; show("upload"); };
+function toast(msg) { const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3800); }
+window.goHome = () => { file = null; $("file").value = ""; show("upload"); window.scrollTo({top:0}); };
 
 async function token() {
   if (!supabase) return null;
@@ -169,11 +290,18 @@ async function init() {
     const { data } = await supabase.auth.getSession();
     session = data.session;
     supabase.auth.onAuthStateChange((_e, s) => { session = s; renderAuth(); refreshMe(); });
+  } else {
+    console.warn("HookCheck: open mode — set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY in Railway to enable sign-in.");
+    $("heroFineprint").textContent = "Open beta · 5 free grades a day · no sign-in needed";
   }
-  renderAuth();
-  refreshMe();
+  renderAuth(); refreshMe();
+  $("planUpgrade").onclick = () => {
+    if (!cfg.paymentsOn) return toast("Premium is almost ready — payments launch soon.");
+    if (cfg.authOn && !session) return toast("Sign in with Google first (top right).");
+    startCheckout();
+  };
   if (new URLSearchParams(location.search).get("upgraded")) {
-    toast("Premium unlocked. Unlimited grades.");
+    toast("Premium unlocked. Unlimited grades. Go earn the A.");
     history.replaceState({}, "", "/");
   }
 }
@@ -185,10 +313,10 @@ function renderAuth() {
     bar.innerHTML = `<button class="pill red" id="signin">SIGN IN WITH GOOGLE</button>`;
     $("signin").onclick = () => supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin } });
   } else {
-    bar.innerHTML = `<div class="who">${esc(session.user.email)}</div>
+    bar.innerHTML = `<span class="who">${esc(session.user.email)}</span>
       <button class="pill" id="dash">MY GRADES</button>
-      <button class="pill" id="signout">SIGN OUT</button>
-      <span id="planslot"></span>`;
+      <span id="planslot"></span>
+      <button class="pill" id="signout">OUT</button>`;
     $("dash").onclick = openDashboard;
     $("signout").onclick = async () => { await supabase.auth.signOut(); location.reload(); };
   }
@@ -204,7 +332,7 @@ async function refreshMe() {
     const slot = $("planslot");
     if (me.premium) {
       $("counter").textContent = "PREMIUM · unlimited grades";
-      if (slot) { slot.innerHTML = `<button class="pill" id="manage">MANAGE PLAN</button>`; $("manage").onclick = openPortal; }
+      if (slot) { slot.innerHTML = `<button class="pill" id="manage">PLAN</button>`; $("manage").onclick = openPortal; }
     } else {
       $("counter").textContent = `Free plan · ${Math.max(0, me.limit - me.used)} of ${me.limit} grades left this month`;
       if (cfg.paymentsOn && slot) { slot.innerHTML = `<button class="pill gold" id="upgrade">GO PREMIUM</button>`; $("upgrade").onclick = startCheckout; }
@@ -226,6 +354,7 @@ async function openPortal() {
 // --- file picking ---
 const drop = $("drop"), input = $("file");
 drop.onclick = () => input.click();
+drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); input.click(); } };
 drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
 drop.ondragleave = () => drop.classList.remove("over");
 drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); accept(e.dataTransfer.files[0]); };
@@ -236,6 +365,7 @@ function accept(f) {
   file = f;
   $("preview").src = URL.createObjectURL(f);
   show("ready");
+  window.scrollTo({top:0});
 }
 $("repick").onclick = window.goHome;
 $("restart").onclick = window.goHome;
@@ -245,38 +375,42 @@ function fail(msg, upgrade = false) {
   $("errmsg").textContent = msg;
   $("errextra").innerHTML = "";
   if (upgrade && cfg?.paymentsOn) {
-    $("errextra").innerHTML = `<div class="paywall"><h3>GO PREMIUM</h3><p>Unlimited grades. Audio hook analysis. Full grade history.</p><button class="btn gold" id="pwbtn">UPGRADE NOW</button></div>`;
+    $("errextra").innerHTML = `<div class="paywall card"><h3>GO PREMIUM — $9/MO</h3><p>Unlimited grades. Audio hook analysis. Full grade history. Re-grade until you earn the A.</p><button class="btn gold full" id="pwbtn">UPGRADE NOW</button></div>`;
     $("pwbtn").onclick = startCheckout;
   }
   show("error");
 }
 
 // --- grading ---
+const LOADING_LINES = [
+  "Pulling your key frames…",
+  "Listening to the first 12 seconds…",
+  "Judging the first 2 seconds hard…",
+  "Sharpening the red pen…",
+  "Writing up the markup…",
+];
 $("grade").onclick = async () => {
-  if (cfg?.authOn && !session) { toast("Sign in with Google first — it's the button at the top."); return; }
+  if (cfg?.authOn && !session) { toast("Sign in with Google first — top right."); return; }
   show("grading");
   $("progress").textContent = "Uploading your video…";
+  let li = 0;
+  const cycler = setInterval(() => { $("progress").textContent = LOADING_LINES[li++ % LOADING_LINES.length]; }, 3200);
   try {
     const form = new FormData();
     form.append("video", file);
     form.append("niche", $("niche").value);
     form.append("caption", $("caption").value);
-    const timer = setTimeout(() => $("progress").textContent = "Pulling frames + audio and grading the hook…", 4000);
     const res = await authedFetch("/api/grade", { method: "POST", body: form });
-    clearTimeout(timer);
     const data = await res.json();
     if (!res.ok || data.error) return fail(data.error || "Analysis failed.", !!data.upgrade);
-    lastResult = data;
     render(data);
     refreshMe();
   } catch (e) {
     fail(e.message || "Something broke during analysis. Try again.");
-  }
+  } finally { clearInterval(cycler); }
 };
 
-function copyLine(text) {
-  return `<button class="copyline" data-t="${esc(text)}">${esc(text)}<small>COPY</small></button>`;
-}
+function copyLine(text) { return `<button class="copyline" data-t="${esc(text)}">${esc(text)}<small>COPY</small></button>`; }
 function wireCopy(root) {
   root.querySelectorAll(".copyline").forEach(b => b.onclick = () => {
     navigator.clipboard.writeText(b.dataset.t);
@@ -313,42 +447,39 @@ function render(r) {
     <p style="font-size:14.5px;line-height:1.6;margin:0;">${esc(r.postTime)}</p>
     <div class="rule"><span>Flop risks</span></div>
     ${(r.flopRisks || []).map(x => `<p class="risk">${esc(x)}</p>`).join("")}
-    <div style="margin-top:40px;"><button class="btn dark" onclick="goHome()">GRADE ANOTHER VIDEO</button></div>`;
+    <div style="margin-top:40px;display:flex;gap:14px;flex-wrap:wrap;">
+      <button class="btn dark" onclick="goHome()">GRADE ANOTHER VIDEO</button>
+    </div>`;
   wireCopy($("stage-result"));
   $("sharecard").onclick = () => makeShareCard(r);
   show("result");
+  window.scrollTo({top:0});
 }
 
-// --- share card: 1080x1080 grade stamp image ---
+// --- share card ---
 async function makeShareCard(r) {
   await document.fonts.ready;
   const c = $("cardcanvas"), x = c.getContext("2d");
-  // paper + grid
   x.fillStyle = "#FCFBF8"; x.fillRect(0, 0, 1080, 1080);
   x.strokeStyle = "rgba(22,21,19,0.05)"; x.lineWidth = 2;
   for (let i = 0; i <= 1080; i += 54) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 1080); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(1080, i); x.stroke(); }
-  // red margin
   x.strokeStyle = "rgba(217,43,33,0.35)"; x.lineWidth = 4;
   x.beginPath(); x.moveTo(90, 0); x.lineTo(90, 1080); x.stroke();
-  // logo
   x.fillStyle = "#161513"; x.font = "72px Anton"; x.fillText("HOOK", 140, 150);
   x.fillStyle = "#D92B21"; x.fillText("CHECK", 140 + x.measureText("HOOK").width, 150);
   x.fillStyle = "#8A8578"; x.font = "26px 'IBM Plex Mono'"; x.fillText("Get graded before you post.", 142, 200);
-  // stamp
   x.save(); x.translate(540, 520); x.rotate(-8 * Math.PI / 180);
   x.strokeStyle = "#D92B21"; x.lineWidth = 14; x.strokeRect(-260, -190, 520, 380);
   x.fillStyle = "#D92B21"; x.font = "260px Anton"; x.textAlign = "center";
   x.fillText(letterFor(r.hookScore), 0, 80);
   x.font = "30px 'IBM Plex Mono'"; x.fillText(`HOOK · ${r.hookScore}/100`, 0, 150);
   x.restore(); x.textAlign = "left";
-  // scores + top fix
   x.fillStyle = "#8A8578"; x.font = "28px 'IBM Plex Mono'";
   x.fillText(`OVERALL: ${r.overallScore}/100`, 142, 810);
   x.fillStyle = "#161513"; x.font = "600 30px Archivo";
   wrapText(x, `FIX → ${r.hook?.fix || ""}`, 142, 860, 800, 40, 3);
   x.fillStyle = "#D92B21"; x.font = "26px 'IBM Plex Mono'";
   x.fillText(location.host, 142, 1020);
-  // export
   c.toBlob(async (blob) => {
     const f = new File([blob], "hookcheck-grade.png", { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [f] })) {
@@ -373,6 +504,7 @@ function wrapText(x, text, px, py, maxW, lh, maxLines) {
 // --- dashboard ---
 async function openDashboard() {
   show("dashboard");
+  window.scrollTo({top:0});
   const r = await authedFetch("/api/history");
   if (!r.ok) { $("histlist").innerHTML = `<p style="color:var(--pencil);font-size:14px;">Sign in to see your grades.</p>`; return; }
   const rows = await r.json();
