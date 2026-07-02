@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HookCheck — Get graded before you post</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FCFBF8; --ink: #161513; --pen: #D92B21; --pen-dark: #B01F17;
+    --pencil: #8A8578; --highlight: #FFE84A; --line: #E4E0D6; --grid: rgba(22,21,19,0.045);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--ink); font-family: 'Archivo', sans-serif;
+    background:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      var(--paper);
+    background-size: 28px 28px, 28px 28px, auto;
+    min-height: 100vh;
+  }
+  .margin-line { position: fixed; top: 0; bottom: 0; left: max(16px, calc(50% - 340px)); width: 2px; background: var(--pen); opacity: 0.35; pointer-events: none; }
+  .wrap { max-width: 620px; margin: 0 auto; padding: 40px 24px 80px; }
+  .logo { font-family: 'Anton', sans-serif; font-size: 42px; line-height: 1; }
+  .logo span { color: var(--pen); }
+  .tagline { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin: 10px 0 0; letter-spacing: 0.04em; }
+  .rule { display: flex; align-items: center; gap: 12px; margin: 36px 0 16px; }
+  .rule span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pen); font-weight: 600; white-space: nowrap; }
+  .rule::after { content: ""; height: 1px; background: var(--line); flex: 1; }
+  .drop { border: 2px dashed var(--pencil); background: rgba(255,255,255,0.5); padding: 56px 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .drop.over { border-color: var(--pen); background: rgba(217,43,33,0.04); }
+  .drop h2 { font-family: 'Anton', sans-serif; font-size: 20px; margin: 0 0 8px; }
+  .drop p { font-size: 13.5px; color: var(--pencil); margin: 0; }
+  .intro { font-size: 13px; color: var(--pencil); line-height: 1.6; margin-top: 20px; }
+  video { width: 100%; max-height: 380px; background: #000; display: block; margin-top: 24px; }
+  label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pencil); display: block; margin: 16px 0 6px; }
+  input[type=text] { width: 100%; padding: 12px 14px; border: 1px solid var(--line); background: #fff; font-size: 15px; font-family: 'Archivo', sans-serif; outline: none; }
+  .btn { margin-top: 20px; padding: 16px; width: 100%; background: var(--pen); color: #fff; border: none; font-family: 'Anton', sans-serif; font-size: 18px; letter-spacing: 0.06em; cursor: pointer; }
+  .btn:hover { background: var(--pen-dark); }
+  .btn.dark { background: var(--ink); width: auto; padding: 14px 28px; font-size: 16px; }
+  .link-btn { background: none; border: none; color: var(--pencil); font-size: 13px; cursor: pointer; text-decoration: underline; display: block; margin: 12px auto 0; }
+  .grading { padding: 80px 0; text-align: center; }
+  .grading h2 { font-family: 'Anton', sans-serif; font-size: 26px; animation: pulse 1.4s ease-in-out infinite; margin: 0; }
+  .grading p { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--pencil); margin-top: 12px; }
+  .stamp-wrap { padding: 44px 0 8px; text-align: center; }
+  .stamp {
+    display: inline-block; padding: 18px 34px; border: 5px solid var(--pen); color: var(--pen);
+    transform: rotate(-8deg); font-family: 'Anton', sans-serif; line-height: 1;
+    background: rgba(252,251,248,0.85); box-shadow: 0 0 0 2px rgba(217,43,33,0.15);
+    animation: stampIn 0.45s cubic-bezier(0.2,0.8,0.3,1) both;
+  }
+  .stamp .letter { font-size: 74px; }
+  .stamp .sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.18em; margin-top: 6px; }
+  .overall { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--pencil); margin-top: 22px; }
+  .item { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .item h3 { font-weight: 700; font-size: 15px; margin: 0 0 6px; }
+  .item .verdict { margin: 0 0 8px; font-size: 14.5px; line-height: 1.55; }
+  .item .fix { margin: 0; font-size: 14px; line-height: 1.5; color: var(--pen); font-weight: 500; }
+  .item .fix b { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.1em; margin-right: 6px; font-weight: 600; }
+  .copyline { display: block; width: 100%; text-align: left; background: transparent; border: none; border-bottom: 1px dashed var(--line); padding: 10px 6px; font-size: 14.5px; font-family: 'Archivo', sans-serif; color: var(--ink); cursor: pointer; line-height: 1.5; transition: background 0.2s; }
+  .copyline.copied { background: var(--highlight); }
+  .copyline small { float: right; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--pencil); margin-left: 8px; }
+  .risk { font-size: 14.5px; line-height: 1.6; margin: 0 0 8px; background: var(--highlight); display: inline-block; padding: 3px 8px; }
+  .err h2 { font-family: 'Anton', sans-serif; font-size: 22px; color: var(--pen); margin-bottom: 10px; }
+  .hidden { display: none !important; }
+  @keyframes stampIn { 0% { transform: rotate(-8deg) scale(2.4); opacity: 0; } 60% { transform: rotate(-8deg) scale(0.94); opacity: 1; } 100% { transform: rotate(-8deg) scale(1); opacity: 1; } }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  @media (prefers-reduced-motion: reduce) { .stamp, .grading h2 { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="margin-line"></div>
+<div class="wrap">
+  <header>
+    <div class="logo">HOOK<span>CHECK</span></div>
+    <p class="tagline">Get graded before you post.</p>
+  </header>
+
+  <!-- upload -->
+  <section id="stage-upload">
+    <div class="rule"><span>Step 1 · Submit your video</span></div>
+    <div class="drop" id="drop">
+      <h2>DROP YOUR VIDEO HERE</h2>
+      <p>or tap to pick a file · any format · under 200MB</p>
+      <input type="file" id="file" accept="video/*,.mov,.mp4,.m4v,.webm,.mkv,.3gp,.hevc" hidden>
+    </div>
+    <p class="intro">HookCheck grades the first two seconds of your video the way the algorithm does: would a stranger stop scrolling? You get a hook score, pacing notes, caption rewrites, and flop warnings — before you post, while you can still fix it.</p>
+  </section>
+
+  <!-- ready -->
+  <section id="stage-ready" class="hidden">
+    <video id="preview" controls playsinline muted></video>
+    <div class="rule"><span>Step 2 · Details (optional but helps)</span></div>
+    <label for="niche">Your niche</label>
+    <input type="text" id="niche" placeholder="e.g. emoto riding, gaming, cooking">
+    <label for="caption">Planned caption</label>
+    <input type="text" id="caption" placeholder="What were you going to caption it?">
+    <button class="btn" id="grade">GRADE MY VIDEO</button>
+    <button class="link-btn" id="repick">Pick a different video</button>
+  </section>
+
+  <!-- grading -->
+  <section id="stage-grading" class="grading hidden">
+    <h2>GRADING…</h2>
+    <p id="progress">Uploading your video…</p>
+  </section>
+
+  <!-- error -->
+  <section id="stage-error" class="err hidden">
+    <h2>THAT DIDN'T WORK</h2>
+    <p id="errmsg" style="font-size:14.5px;line-height:1.6;"></p>
+    <button class="btn dark" id="restart">START OVER</button>
+  </section>
+
+  <!-- result -->
+  <section id="stage-result" class="hidden"></section>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const stages = ["upload","ready","grading","error","result"];
+let file = null;
+
+function show(stage) { stages.forEach(s => $("stage-"+s).classList.toggle("hidden", s !== stage)); }
+function fail(msg) { $("errmsg").textContent = msg; show("error"); }
+
+function letterFor(s) { return s>=90?"A":s>=80?"B":s>=70?"C":s>=55?"D":"F"; }
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+
+// --- file picking ---
+const drop = $("drop"), input = $("file");
+drop.onclick = () => input.click();
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); accept(e.dataTransfer.files[0]); };
+input.onchange = () => accept(input.files[0]);
+
+function accept(f) {
+  if (!f) return;
+  if (f.size > 200*1024*1024) return fail("Video is over 200MB. Export a smaller version and try again.");
+  file = f;
+  $("preview").src = URL.createObjectURL(f);
+  show("ready");
+}
+
+$("repick").onclick = () => { file = null; input.value = ""; show("upload"); };
+$("restart").onclick = () => { file = null; input.value = ""; show("upload"); };
+
+// --- grading ---
+$("grade").onclick = async () => {
+  show("grading");
+  $("progress").textContent = "Uploading your video…";
+  try {
+    const form = new FormData();
+    form.append("video", file);
+    form.append("niche", $("niche").value);
+    form.append("caption", $("caption").value);
+    const timer = setTimeout(() => $("progress").textContent = "Pulling frames and grading the hook…", 4000);
+    const res = await fetch("/api/grade", { method: "POST", body: form });
+    clearTimeout(timer);
+    const data = await res.json();
+    if (!res.ok || data.error) throw new Error(data.error || "Analysis failed.");
+    render(data);
+  } catch (e) {
+    fail(e.message || "Something broke during analysis. Try again.");
+  }
+};
+
+function copyLine(text) {
+  return `<button class="copyline" onclick="navigator.clipboard.writeText(this.dataset.t);this.classList.add('copied');this.querySelector('small').textContent='COPIED';setTimeout(()=>{this.classList.remove('copied');this.querySelector('small').textContent='COPY'},1400)" data-t="${esc(text)}">${esc(text)}<small>COPY</small></button>`;
+}
+
+function render(r) {
+  const tags = r.hashtags.map(h => h.startsWith("#") ? h : "#"+h).join(" ");
+  $("stage-result").innerHTML = `
+    <div class="stamp-wrap">
+      <div class="stamp"><div class="letter">${esc(letterFor(r.hookScore))}</div><div class="sub">HOOK · ${r.hookScore}/100</div></div>
+      <div class="overall">Overall: ${r.overallScore}/100</div>
+    </div>
+    <div class="rule"><span>The markup</span></div>
+    ${["hook","pacing","visual"].map(k => `
+      <div class="item">
+        <h3>${k === "hook" ? "Hook (first 2 seconds)" : k[0].toUpperCase()+k.slice(1)}</h3>
+        <p class="verdict">${esc(r[k].verdict)}</p>
+        <p class="fix"><b>FIX →</b>${esc(r[k].fix)}</p>
+      </div>`).join("")}
+    <div class="rule"><span>Captions — tap to copy</span></div>
+    ${r.captions.map(copyLine).join("")}
+    <div class="rule"><span>Hashtags</span></div>
+    ${copyLine(tags)}
+    <div class="rule"><span>When to post</span></div>
+    <p style="font-size:14.5px;line-height:1.6;margin:0;">${esc(r.postTime)}</p>
+    <div class="rule"><span>Flop risks</span></div>
+    ${r.flopRisks.map(x => `<p class="risk">${esc(x)}</p>`).join("")}
+    <div style="margin-top:40px;"><button class="btn dark" onclick="location.reload()">GRADE ANOTHER VIDEO</button></div>`;
+  show("result");
+}
+</script>
+</body>
+</html>
