@@ -48,7 +48,7 @@ alter table grades enable row level security;
 5. Project Settings -> API -> copy URL, anon key, service_role key into Railway
 
 ## Stripe setup (18+ account holder)
-1. Create a Product: "HookCheck Premium", recurring $9/month -> copy the price_... ID
+1. Create a Product: "HookCheck Premium", recurring $3.99/month -> copy the price_... ID
 2. Developers -> Webhooks -> Add endpoint: `https://YOUR-DOMAIN/api/stripe-webhook`
    Events: `checkout.session.completed`, `customer.subscription.deleted` -> copy whsec_...
 3. Put STRIPE_SECRET_KEY, STRIPE_PRICE_ID, STRIPE_WEBHOOK_SECRET into Railway

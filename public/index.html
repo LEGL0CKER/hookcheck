@@ -256,7 +256,7 @@
       </div>
       <div class="plan">
         <h3>PREMIUM</h3>
-        <div class="price">$9<small>/month</small></div>
+        <div class="price">$3.99<small>/month</small></div>
         <ul>
           <li>Unlimited grades</li>
           <li>Full grade history</li>
@@ -431,7 +431,7 @@ function fail(msg, upgrade = false) {
   $("errmsg").textContent = msg;
   $("errextra").innerHTML = "";
   if (upgrade && cfg?.paymentsOn) {
-    $("errextra").innerHTML = `<div class="paywall card"><h3>GO PREMIUM — $9/MO</h3><p>Unlimited grades. Audio hook analysis. Full grade history. Re-grade until you earn the A.</p><button class="btn gold full" id="pwbtn">UPGRADE NOW</button></div>`;
+    $("errextra").innerHTML = `<div class="paywall card"><h3>GO PREMIUM — $3.99/MO</h3><p>Unlimited grades. Audio hook analysis. Full grade history. Re-grade until you earn the A.</p><button class="btn gold full" id="pwbtn">UPGRADE NOW</button></div>`;
     $("pwbtn").onclick = startCheckout;
   }
   show("error");
