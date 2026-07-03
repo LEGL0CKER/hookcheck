@@ -5,6 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>HookCheck — Get graded before you post</title>
 <meta name="description" content="Upload your TikTok before you post it. Get a brutal hook score, audio analysis, caption rewrites, and flop warnings — while you can still fix it.">
+<link rel="canonical" href="https://hookcheck-production.up.railway.app/">
+<meta name="theme-color" content="#D92B21">
+
+<!-- icons -->
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="HookCheck">
+<meta property="og:title" content="HookCheck — Get graded before you post">
+<meta property="og:description" content="The average TikTok scores a D. Grade your short-form video before you post it — hook, audio, pacing — and fix what flops while you still can.">
+<meta property="og:url" content="https://hookcheck-production.up.railway.app/">
+<meta property="og:image" content="https://hookcheck-production.up.railway.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="HookCheck — the average TikTok scores a D">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="HookCheck — Get graded before you post">
+<meta name="twitter:description" content="Grade your short-form video before you post it — hook, audio, pacing — and fix what flops while you still can.">
+<meta name="twitter:image" content="https://hookcheck-production.up.railway.app/og-image.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -69,6 +93,12 @@
   .drop.over { border-color: var(--pen); background: rgba(217,43,33,0.05); border-style: solid; }
   .drop h2 { font-family: 'Anton', sans-serif; font-size: 22px; margin: 0 0 8px; letter-spacing: 0.03em; }
   .drop p { font-size: 13.5px; color: var(--pencil); margin: 0; }
+  .privacy { font-size: 12.5px; line-height: 1.55; color: var(--pencil); margin: 14px 2px 0; text-align: center; }
+
+  /* ---------- sample grade preview ---------- */
+  .sample { position: relative; background: #fff; border: 1.5px dashed var(--ink); box-shadow: var(--shadow); padding: 30px 24px 24px; margin-top: 16px; }
+  .sample-tag { position: absolute; top: -12px; left: 18px; background: var(--ink); color: #fff; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.12em; padding: 4px 10px; }
+  .sample .item:last-of-type { border-bottom: none; }
 
   /* ---------- how it works ---------- */
   .steps { display: grid; gap: 14px; }
@@ -161,7 +191,7 @@
       <p class="sub">HookCheck grades your video <mark>before you post it</mark> — the hook, the audio, the pacing — and tells you exactly what to fix while you still can. No sugarcoating. The red pen doesn't care about your feelings.</p>
       <div class="cta-row">
         <button class="btn" onclick="document.getElementById('drop').scrollIntoView({block:'center'}); ">GRADE MY VIDEO</button>
-        <span class="fineprint" id="heroFineprint">3 free grades a month · any format · no watermark</span>
+        <span class="fineprint" id="heroFineprint">Open beta · 5 free grades a day · no sign-in</span>
       </div>
     </section>
   </div>
@@ -174,6 +204,7 @@
       <p>or tap to pick a file · MP4, MOV, HEVC, anything · under 200MB</p>
       <input type="file" id="file" accept="video/*,.mov,.mp4,.m4v,.webm,.mkv,.3gp,.hevc" hidden>
     </div>
+    <p class="privacy">🔒 Your video is graded, then deleted from our server within seconds — never stored, never shared, never used to train anything. Upload your unreleased clips with confidence.</p>
   </section>
 
   <div id="marketing2">
@@ -184,29 +215,51 @@
       <div class="step"><div class="n">03</div><div><h3>Fix & post</h3><p>Every fix takes under 30 minutes with a phone. Re-grade, earn the A, then post knowing it won't flop.</p></div></div>
     </div>
 
+    <div class="rule"><span>A sample grade</span></div>
+    <p style="font-size:14px;line-height:1.6;color:#3d3b37;margin:0 0 4px;">This is exactly what lands back after every upload — a hard score plus the specific fixes. No login required to see it work.</p>
+    <div class="sample">
+      <div class="sample-tag">EXAMPLE — NOT YOUR VIDEO</div>
+      <div class="stamp-wrap" style="padding:22px 0 6px;">
+        <div class="stamp" style="animation:none;"><div class="letter">D</div><div class="sub">HOOK · 52/100</div></div>
+        <div class="overall">Overall: 58/100 · audio analyzed</div>
+      </div>
+      <div class="item"><h3>Hook (first 2 seconds)</h3>
+        <p class="verdict">You open on a locked-off shot of yourself sitting down, reaching to adjust the camera. Two full seconds pass before you say a word — a stranger has already flicked past.</p>
+        <p class="fix"><b>FIX →</b>Cut those two seconds. Open mid-sentence on "nobody tells you this about your first year" with the camera already rolling.</p>
+      </div>
+      <div class="item"><h3>Audio hook</h3>
+        <p class="verdict">Silent for the first second, then a low "um, ok so." Nothing in the sound reaches out and grabs the ear in the window that decides everything.</p>
+        <p class="fix"><b>FIX →</b>Start on a trending sound sting under frame one, or lead with the loudest, most confident line you have.</p>
+      </div>
+      <div class="rule" style="margin:24px 0 12px;"><span>Rewritten captions</span></div>
+      <div class="copyline" style="cursor:default;">I wish someone told me this before I wasted six months</div>
+      <div class="rule" style="margin:20px 0 12px;"><span>Flop risk</span></div>
+      <p class="risk">Static opener caps the hook at a D — the feed bails inside the first second.</p>
+    </div>
+
     <div class="rule"><span>Pricing</span></div>
     <div class="plans">
-      <div class="plan">
+      <div class="plan hot">
+        <div class="flag">OPEN BETA</div>
         <h3>FREE</h3>
         <div class="price">$0<small></small></div>
         <ul>
-          <li>3 grades per month</li>
-          <li>Hook + pacing + visual markup</li>
+          <li>5 grades every day</li>
+          <li>No sign-in needed</li>
+          <li>Hook + audio + pacing + visual markup</li>
           <li>Caption rewrites & hashtags</li>
           <li>Shareable grade card</li>
         </ul>
       </div>
-      <div class="plan hot">
-        <div class="flag">FOR CREATORS</div>
+      <div class="plan">
         <h3>PREMIUM</h3>
         <div class="price">$9<small>/month</small></div>
         <ul>
           <li>Unlimited grades</li>
-          <li>Audio hook analysis</li>
           <li>Full grade history</li>
           <li>Re-grade until you earn the A</li>
         </ul>
-        <button class="btn gold" id="planUpgrade">GO PREMIUM</button>
+        <button class="btn" id="planUpgrade">COMING SOON</button>
       </div>
     </div>
   </div>
@@ -292,7 +345,7 @@ async function init() {
     supabase.auth.onAuthStateChange((_e, s) => { session = s; renderAuth(); refreshMe(); });
   } else {
     console.warn("HookCheck: open mode — set SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY in Railway to enable sign-in.");
-    $("heroFineprint").textContent = "Open beta · 5 free grades a day · no sign-in needed";
+    $("heroFineprint").textContent = "Open beta · 5 free grades a day · no sign-in";
   }
   renderAuth(); refreshMe();
   $("planUpgrade").onclick = () => {
